@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#67C23A"/><stop offset="100%" stop-color="#409E11"/></linearGradient></defs>
+<rect width="800" height="450" fill="url(#g)"/>
+<text x="400" y="220" font-size="42" fill="#ffffff" text-anchor="middle" font-family="Microsoft YaHei, sans-serif" font-weight="bold">融小通平台正式上线</text>
+<text x="400" y="272" font-size="20" fill="#ffffff" opacity="0.85" text-anchor="middle" font-family="Microsoft YaHei, sans-serif">融小通 · 助力乡村振兴</text>
+</svg>

@@ -1,0 +1,32 @@
+# ================= 后端主配置文件 =================
+server:
+  port: 8080                      # 后端端口：http://localhost:8080
+  servlet:
+    context-path: /api            # 所有接口统一加 /api 前缀
+
+spring:
+  datasource:
+    driver-class-name: org.sqlite.JDBC
+    url: jdbc:sqlite:./rongxiaotong.db   # 数据库就是一个文件，首次启动自动创建
+  sql:
+    init:
+      mode: always                # 每次启动都执行 init.sql（脚本是幂等的，不会重复插入数据）
+      schema-locations: classpath:db/init.sql
+      encoding: UTF-8
+  servlet:
+    multipart:
+      max-file-size: 10MB         # 上传图片大小限制
+      max-request-size: 20MB
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true   # 数据库下划线字段自动对应 Java 驼峰属性
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   # 控制台打印 SQL，方便学习
+  global-config:
+    db-config:
+      id-type: auto               # 主键自增
+
+# ================= 自定义配置 =================
+app:
+  jwt-secret: rongxiaotong-jwt-secret-key-2026   # JWT 签名密钥（正式项目应放环境变量）
+  upload-dir: ./uploads          # 图片上传保存目录

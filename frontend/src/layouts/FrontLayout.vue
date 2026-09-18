@@ -20,7 +20,8 @@ const menus = [
 ]
 
 function onMenu(path) {
-  if (path === '/') {
+  // 已完成的模块直接跳转，未完成的先提示
+  if (path === '/' || path === '/finance') {
     router.push(path)
     return
   }
@@ -53,7 +54,7 @@ function onUserCommand(cmd) {
             v-for="m in menus"
             :key="m.path"
             class="menu-item"
-            :class="{ active: m.path === '/' && route.path === '/' }"
+            :class="{ active: m.path === route.path }"
             @click="onMenu(m.path)"
           >
             {{ m.label }}

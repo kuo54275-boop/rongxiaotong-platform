@@ -16,6 +16,7 @@ const routes = [
     component: () => import('@/layouts/FrontLayout.vue'),
     children: [
       { path: '', name: 'home', component: () => import('@/views/Home.vue') },
+      { path: 'finance', name: 'finance', component: () => import('@/views/finance/FinanceHome.vue') },
       // 后续模块的路由在这里逐个添加
     ],
   },

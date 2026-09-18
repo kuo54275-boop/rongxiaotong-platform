@@ -13,3 +13,10 @@ export const getInfoApi = () => request.get('/auth/info')
 // ===== 公开数据 =====
 export const getHomeApi = () => request.get('/public/home')
 export const getNewsListApi = () => request.get('/public/news/list')
+
+// ===== 融资服务 =====
+export const getLoanProductsApi = () => request.get('/public/loan/products')
+export const getLoanProductApi = (id) => request.get(`/public/loan/product/${id}`)
+export const matchPartnersApi = () => request.get('/loan/partner/match')
+export const applyLoanApi = (data) => request.post('/loan/apply', data)
+export const getMyLoansApi = () => request.get('/loan/my')

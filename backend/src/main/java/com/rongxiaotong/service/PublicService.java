@@ -2,6 +2,7 @@ package com.rongxiaotong.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.rongxiaotong.common.BizException;
 import com.rongxiaotong.dto.*;
 import com.rongxiaotong.entity.*;
 import com.rongxiaotong.mapper.*;
@@ -32,6 +33,21 @@ public class PublicService {
     public List<News> newsList() {
         return newsMapper.selectList(
                 new LambdaQueryWrapper<News>().orderByDesc(News::getCreateTime));
+    }
+
+    /** 上架贷款产品列表 */
+    public List<LoanProduct> loanProducts() {
+        return loanProductMapper.selectList(
+                new LambdaQueryWrapper<LoanProduct>().eq(LoanProduct::getStatus, 1));
+    }
+
+    /** 贷款产品详情 */
+    public LoanProduct loanProductDetail(Long id) {
+        LoanProduct p = loanProductMapper.selectById(id);
+        if (p == null) {
+            throw new BizException("贷款产品不存在");
+        }
+        return p;
     }
 
     /** 首页聚合数据：轮播、金融产品、专家、商品、知识、问答一次全返回 */

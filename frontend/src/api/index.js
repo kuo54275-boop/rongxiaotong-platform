@@ -39,6 +39,8 @@ export const updateProfileApi = (data) => request.put('/expert/profile', data)
 // 问答
 export const askQuestionApi = (data) => request.post('/expert/question/ask', data)
 export const answerQuestionApi = (id, data) => request.post(`/expert/question/${id}/answer`, data)
+export const deleteQuestionApi = (id) => request.delete(`/expert/question/${id}`)
+export const deleteAnswerApi = (id) => request.delete(`/expert/answer/${id}`)
 export const getTodoQuestionsApi = () => request.get('/expert/question/todo')
 export const getMyQuestionsApi = () => request.get('/expert/question/my')
 // 预约

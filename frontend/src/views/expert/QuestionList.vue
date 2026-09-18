@@ -1,10 +1,12 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   answerQuestionApi,
   askQuestionApi,
+  deleteAnswerApi,
+  deleteQuestionApi,
   getConsultStatsApi,
   getExpertsApi,
   getMyQuestionsApi,
@@ -165,6 +167,34 @@ async function submitAnswer() {
     answering.value = false
   }
 }
+
+/** 删除自己的提问（连带回答一起删除） */
+async function removeQuestion(q) {
+  try {
+    await ElMessageBox.confirm('删除提问后，该问题下的所有回答也会一起删除，确定吗？', '删除提问', {
+      type: 'warning',
+    })
+  } catch (e) {
+    return
+  }
+  await deleteQuestionApi(q.id)
+  ElMessage.success('提问已删除')
+  detailVisible.value = false
+  loadList()
+}
+
+/** 删除自己的回答 */
+async function removeAnswer(a) {
+  try {
+    await ElMessageBox.confirm('确定删除这条回答吗？', '删除回答', { type: 'warning' })
+  } catch (e) {
+    return
+  }
+  await deleteAnswerApi(a.id)
+  ElMessage.success('回答已删除')
+  openDetail(detail.value.id)
+  loadList()
+}
 </script>
 
 <template>
@@ -207,6 +237,15 @@ async function submitAnswer() {
             @click.stop="openAnswer(q)"
           >
             去回答
+          </el-button>
+          <el-button
+            v-if="tab === 'mine'"
+            size="small"
+            type="danger"
+            link
+            @click.stop="removeQuestion(q)"
+          >
+            删除
           </el-button>
         </div>
       </el-card>
@@ -268,14 +307,37 @@ async function submitAnswer() {
           <div v-for="a in detail.answers" :key="a.id" class="d-a">
             <img :src="a.expertAvatar" class="d-avatar" alt="专家" />
             <div class="d-a-main">
-              <div class="d-a-name">{{ a.expertName }} <span class="d-a-time">{{ a.createTime }}</span></div>
+              <div class="d-a-name">
+                {{ a.expertName }}
+                <span class="d-a-time">{{ a.createTime }}</span>
+                <el-button
+                  v-if="a.expertId === userStore.userInfo?.id"
+                  size="small"
+                  type="danger"
+                  link
+                  class="d-a-del"
+                  @click="removeAnswer(a)"
+                >
+                  删除
+                </el-button>
+              </div>
               <div class="d-a-content">{{ a.content }}</div>
             </div>
           </div>
           <div v-if="!detail.answers?.length" class="d-empty">还没有专家回答，等待中…</div>
         </div>
-        <div v-if="userStore.role === 'EXPERT'" class="d-actions">
-          <el-button type="primary" @click="openAnswer(detail)">我来回答</el-button>
+        <div class="d-actions">
+          <el-button
+            v-if="detail.farmerId === userStore.userInfo?.id"
+            type="danger"
+            link
+            @click="removeQuestion(detail)"
+          >
+            删除这条提问
+          </el-button>
+          <el-button v-if="userStore.role === 'EXPERT'" type="primary" @click="openAnswer(detail)">
+            我来回答
+          </el-button>
         </div>
       </template>
     </el-dialog>

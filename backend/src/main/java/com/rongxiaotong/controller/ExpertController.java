@@ -84,4 +84,18 @@ public class ExpertController {
     public Result<List<QuestionDetailVO>> myQuestions() {
         return Result.ok(expertService.myQuestions());
     }
+
+    /** 农户：删除自己的提问 */
+    @DeleteMapping("/question/{id}")
+    public Result<Void> deleteQuestion(@PathVariable Long id) {
+        expertService.deleteQuestion(id);
+        return Result.ok("提问已删除", null);
+    }
+
+    /** 专家：删除自己的回答 */
+    @DeleteMapping("/answer/{id}")
+    public Result<Void> deleteAnswer(@PathVariable Long id) {
+        expertService.deleteAnswer(id);
+        return Result.ok("回答已删除", null);
+    }
 }

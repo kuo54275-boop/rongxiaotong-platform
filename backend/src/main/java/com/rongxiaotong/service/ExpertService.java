@@ -236,6 +236,34 @@ public class ExpertService {
         return question.getId();
     }
 
+    /** 农户：删除自己的提问（连带该问题的回答一起删除） */
+    public void deleteQuestion(Long id) {
+        Question q = questionMapper.selectById(id);
+        if (q == null || !q.getFarmerId().equals(UserContext.getUserId())) {
+            throw new BizException("只能删除自己的提问");
+        }
+        questionMapper.deleteById(id);
+        answerMapper.delete(new LambdaQueryWrapper<Answer>().eq(Answer::getQuestionId, id));
+    }
+
+    /** 专家：删除自己的回答（问题若无其他回答则恢复为待回答） */
+    public void deleteAnswer(Long id) {
+        Answer a = answerMapper.selectById(id);
+        if (a == null || !a.getExpertId().equals(UserContext.getUserId())) {
+            throw new BizException("只能删除自己的回答");
+        }
+        answerMapper.deleteById(id);
+        Long count = answerMapper.selectCount(
+                new LambdaQueryWrapper<Answer>().eq(Answer::getQuestionId, a.getQuestionId()));
+        if (count == 0) {
+            Question q = questionMapper.selectById(a.getQuestionId());
+            if (q != null) {
+                q.setStatus(0);
+                questionMapper.updateById(q);
+            }
+        }
+    }
+
     /** 专家：回答问题（问题状态改为已回答） */
     public Long answer(Long questionId, String content) {
         if (!UserContext.isRole(Roles.EXPERT)) {

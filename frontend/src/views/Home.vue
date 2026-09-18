@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import { getHomeApi } from '@/api'
 
 /**
@@ -23,10 +22,6 @@ onMounted(async () => {
   }
 })
 
-/** 农产品交易模块还没上线，其余模块直接跳转 */
-function todo() {
-  ElMessage.info('农产品交易模块开发中，敬请期待！')
-}
 </script>
 
 <template>
@@ -137,11 +132,12 @@ function todo() {
     <section class="section">
       <div class="section-head">
         <h3>🛒 助农电商</h3>
-        <span class="more" @click="todo('农产品交易')">进入农产品交易 &gt;</span>
+        <span class="more" @click="router.push('/market')">进入农产品交易 &gt;</span>
       </div>
       <el-row :gutter="16">
         <el-col :span="6" v-for="p in home.products" :key="p.id">
-          <el-card shadow="hover" class="product-card" :body-style="{ padding: '0' }">
+          <el-card shadow="hover" class="product-card" :body-style="{ padding: '0' }"
+                   @click="router.push(`/market/product/${p.id}`)">
             <img :src="p.cover" class="product-cover" alt="商品图" />
             <div class="product-body">
               <div class="product-name">{{ p.name }}</div>

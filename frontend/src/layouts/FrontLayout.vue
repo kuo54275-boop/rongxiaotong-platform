@@ -59,7 +59,7 @@ async function tick() {
 
 function onMenu(path) {
   // 已完成的模块直接跳转，未完成的先提示
-  if (path === '/' || path === '/finance' || path === '/expert') {
+  if (path === '/' || path === '/finance' || path === '/expert' || path === '/market') {
     router.push(path)
     return
   }

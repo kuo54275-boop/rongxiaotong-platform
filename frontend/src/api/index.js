@@ -60,3 +60,38 @@ export const getConsultStatsApi = () => request.get('/consult/stats')
 
 // 用户公开信息
 export const getBasicUserApi = (id) => request.get(`/public/user/${id}/basic`)
+
+// ===== 农产品交易 =====
+// 商品
+export const getProductsApi = (params) => request.get('/public/products', { params })
+export const getProductApi = (id) => request.get(`/public/product/${id}`)
+export const getMyProductsApi = () => request.get('/product/my')
+export const saveProductApi = (data) => request.post('/product/save', data)
+export const updateProductStatusApi = (id, status) =>
+  request.put(`/product/${id}/status`, null, { params: { status } })
+export const deleteProductApi = (id) => request.delete(`/product/${id}`)
+// 求购需求
+export const getDemandsApi = (params) => request.get('/public/demands', { params })
+export const getMyDemandsApi = () => request.get('/demand/my')
+export const saveDemandApi = (data) => request.post('/demand/save', data)
+export const updateDemandStatusApi = (id, status) =>
+  request.put(`/demand/${id}/status`, null, { params: { status } })
+export const deleteDemandApi = (id) => request.delete(`/demand/${id}`)
+// 购物车
+export const getCartApi = () => request.get('/cart/list')
+export const addCartApi = (productId, quantity) =>
+  request.post('/cart/add', null, { params: { productId, quantity } })
+export const updateCartQuantityApi = (id, quantity) =>
+  request.put(`/cart/${id}/quantity`, null, { params: { quantity } })
+export const removeCartApi = (id) => request.delete(`/cart/${id}`)
+// 收货地址
+export const getAddressListApi = () => request.get('/address/list')
+export const saveAddressApi = (data) => request.post('/address/save', data)
+export const deleteAddressApi = (id) => request.delete(`/address/${id}`)
+// 订单
+export const createOrderApi = (data) => request.post('/order/create', data)
+export const getMyOrdersApi = () => request.get('/order/my')
+export const getSellerOrdersApi = () => request.get('/order/seller')
+export const payOrderApi = (id) => request.put(`/order/${id}/pay`)
+export const shipOrderApi = (id) => request.put(`/order/${id}/ship`)
+export const cancelOrderApi = (id) => request.put(`/order/${id}/cancel`)

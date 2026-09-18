@@ -11,5 +11,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class ProductVO extends Product {
 
-    private String farmerName;   // 供货农户姓名
+    private String farmerName;    // 供货农户姓名
+    private String farmerAddress; // 产地（商品详情页展示）
 }

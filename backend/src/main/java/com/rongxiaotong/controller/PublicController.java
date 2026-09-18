@@ -3,14 +3,18 @@ package com.rongxiaotong.controller;
 import com.rongxiaotong.common.PageResult;
 import com.rongxiaotong.common.Result;
 import com.rongxiaotong.dto.ArticleVO;
+import com.rongxiaotong.dto.DemandVO;
 import com.rongxiaotong.dto.ExpertVO;
 import com.rongxiaotong.dto.HomeVO;
+import com.rongxiaotong.dto.ProductVO;
 import com.rongxiaotong.dto.QuestionDetailVO;
 import com.rongxiaotong.dto.QuestionVO;
 import com.rongxiaotong.entity.LoanProduct;
 import com.rongxiaotong.entity.News;
 import com.rongxiaotong.entity.User;
+import com.rongxiaotong.service.DemandService;
 import com.rongxiaotong.service.ExpertService;
+import com.rongxiaotong.service.ProductService;
 import com.rongxiaotong.service.PublicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +35,8 @@ public class PublicController {
 
     private final PublicService publicService;
     private final ExpertService expertService;
+    private final ProductService productService;
+    private final DemandService demandService;
 
     /** 新闻列表 */
     @GetMapping("/news/list")
@@ -108,5 +114,38 @@ public class PublicController {
     @GetMapping("/question/{id}")
     public Result<QuestionDetailVO> questionDetail(@PathVariable Long id) {
         return Result.ok(expertService.questionDetail(id));
+    }
+
+    // ===== 农产品交易（浏览） =====
+
+    /** 商品列表（分页 + 分类 + 关键词） */
+    @GetMapping("/products")
+    public Result<PageResult<ProductVO>> products(
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "8") long size,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String keyword) {
+        return Result.ok(productService.pageProducts(page, size, category, keyword));
+    }
+
+    /** 商品详情（含农户姓名和产地） */
+    @GetMapping("/product/{id}")
+    public Result<ProductVO> productDetail(@PathVariable Long id) {
+        return Result.ok(productService.productDetail(id));
+    }
+
+    /** 求购需求列表（分页 + 分类） */
+    @GetMapping("/demands")
+    public Result<PageResult<DemandVO>> demands(
+            @RequestParam(defaultValue = "1") long page,
+            @RequestParam(defaultValue = "8") long size,
+            @RequestParam(required = false) String category) {
+        return Result.ok(demandService.pageDemands(page, size, category));
+    }
+
+    /** 求购需求详情 */
+    @GetMapping("/demand/{id}")
+    public Result<DemandVO> demandDetail(@PathVariable Long id) {
+        return Result.ok(demandService.demandDetail(id));
     }
 }

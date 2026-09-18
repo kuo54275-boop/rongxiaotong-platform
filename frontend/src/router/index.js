@@ -25,6 +25,12 @@ const routes = [
       { path: 'expert/team', name: 'expertTeam', component: () => import('@/views/expert/ExpertList.vue') },
       { path: 'expert/chat/:userId', name: 'chat', component: () => import('@/views/expert/Chat.vue') },
       { path: 'expert/appointments', name: 'appointments', component: () => import('@/views/expert/Appointments.vue') },
+      // 农产品交易模块
+      { path: 'market', name: 'market', component: () => import('@/views/market/MarketHome.vue') },
+      { path: 'market/product/:id', name: 'productDetail', component: () => import('@/views/market/ProductDetail.vue') },
+      { path: 'market/cart', name: 'cart', component: () => import('@/views/market/Cart.vue') },
+      { path: 'market/demands', name: 'demands', component: () => import('@/views/market/DemandList.vue') },
+      { path: 'market/orders', name: 'orders', component: () => import('@/views/market/OrderList.vue') },
       // 后续模块的路由在这里逐个添加
     ],
   },

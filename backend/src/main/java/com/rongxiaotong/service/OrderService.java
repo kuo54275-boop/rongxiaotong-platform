@@ -105,12 +105,6 @@ public class OrderService {
                 productMapper.updateById(p);
             }
             orderIds.add(order.getId());
-            // 5. 通知农户：有新订单
-            User buyer = userMapper.selectById(UserContext.getUserId());
-            notificationService.send(farmerId, "ORDER_NEW", "🛒 新订单提醒",
-                    "买家" + (buyer == null ? "" : buyer.getRealName())
-                            + "提交了新订单 " + order.getOrderNo() + "，金额 ¥" + order.getTotalAmount() + "，请及时关注",
-                    order.getId());
         }
         // 5. 清空购物车
         cartMapper.delete(new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, UserContext.getUserId()));
@@ -138,7 +132,7 @@ public class OrderService {
         return fillOrderVO(orders);
     }
 
-    /** 买家：付款（模拟，待付款 → 待发货） */
+    /** 买家：付款（模拟，待付款 → 待发货），付款后通知农户尽快发货 */
     public void pay(Long id) {
         Order order = mustOwnOrder(id, true);
         if (!"UNPAID".equals(order.getStatus())) {
@@ -146,6 +140,11 @@ public class OrderService {
         }
         order.setStatus("SHIPPED");
         orderMapper.updateById(order);
+        User buyer = userMapper.selectById(UserContext.getUserId());
+        notificationService.send(order.getFarmerId(), "ORDER_PAID", "🚚 待发货提醒",
+                "买家" + (buyer == null ? "" : buyer.getRealName())
+                        + "已付款订单 " + order.getOrderNo() + "，金额 ¥" + order.getTotalAmount() + "，请尽快发货",
+                order.getId());
     }
 
     /** 农户：发货（待发货 → 已完成），并通知买家 */
@@ -163,12 +162,12 @@ public class OrderService {
                 "您的订单 " + order.getOrderNo() + " 已发货，请注意查收", order.getId());
     }
 
-    /** 买家：取消订单（恢复库存） */
+    /** 买家：取消订单（未发货前均可取消，恢复库存） */
     @Transactional
     public void cancel(Long id) {
         Order order = mustOwnOrder(id, true);
-        if (!"UNPAID".equals(order.getStatus())) {
-            throw new BizException("只有待付款的订单可以取消");
+        if (!"UNPAID".equals(order.getStatus()) && !"SHIPPED".equals(order.getStatus())) {
+            throw new BizException("只有未发货的订单可以取消");
         }
         order.setStatus("CANCELLED");
         orderMapper.updateById(order);

@@ -82,6 +82,7 @@ async function onNotifyClick(n) {
   }
   const routeMap = {
     ORDER_NEW: '/market/orders',
+    ORDER_PAID: '/market/orders',
     ORDER_SHIPPED: '/market/orders',
     QUESTION_ANSWERED: '/expert/questions',
     APPOINTMENT_HANDLED: '/expert/appointments',

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   cancelOrderApi,
@@ -14,11 +14,13 @@ import { useUserStore } from '@/stores/user'
  * 订单页：
  * 买家视角 → 我的订单（付款 / 取消）
  * 农户视角 → 供货订单（发货）
+ * 每 10 秒自动刷新，新订单/状态变化无需手动刷新页面
  */
 const userStore = useUserStore()
 
 const orders = ref([])
 const loading = ref(false)
+let timer = null
 
 const statusMap = {
   UNPAID: { text: '待付款', type: 'warning' },
@@ -27,7 +29,16 @@ const statusMap = {
   CANCELLED: { text: '已取消', type: 'info' },
 }
 
-onMounted(load)
+onMounted(() => {
+  load()
+  timer = setInterval(load, 10000)   // 每 10 秒自动刷新
+})
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+  }
+})
 
 async function load() {
   loading.value = true
@@ -127,7 +138,13 @@ async function cancel(row) {
               <el-button v-if="o.status === 'SHIPPED'" type="primary" @click="ship(o)">发 货</el-button>
             </template>
             <template v-else>
-              <el-button v-if="o.status === 'UNPAID'" type="danger" @click="cancel(o)">取消订单</el-button>
+              <el-button
+                v-if="o.status === 'UNPAID' || o.status === 'SHIPPED'"
+                type="danger"
+                @click="cancel(o)"
+              >
+                取消订单
+              </el-button>
               <el-button v-if="o.status === 'UNPAID'" type="primary" @click="pay(o)">付 款</el-button>
             </template>
           </div>

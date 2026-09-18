@@ -21,7 +21,7 @@ const menus = [
 
 function onMenu(path) {
   // 已完成的模块直接跳转，未完成的先提示
-  if (path === '/' || path === '/finance') {
+  if (path === '/' || path === '/finance' || path === '/expert') {
     router.push(path)
     return
   }

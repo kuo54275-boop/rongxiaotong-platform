@@ -41,6 +41,17 @@ public class PublicService {
                 new LambdaQueryWrapper<LoanProduct>().eq(LoanProduct::getStatus, 1));
     }
 
+    /** 用户公开信息（姓名头像，聊天页显示对方信息用；密码不外传） */
+    public User userBasic(Long id) {
+        User u = userMapper.selectById(id);
+        if (u == null) {
+            throw new BizException("用户不存在");
+        }
+        u.setPassword(null);
+        u.setPhone(null);
+        return u;
+    }
+
     /** 贷款产品详情 */
     public LoanProduct loanProductDetail(Long id) {
         LoanProduct p = loanProductMapper.selectById(id);

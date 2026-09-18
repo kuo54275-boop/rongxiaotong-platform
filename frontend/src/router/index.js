@@ -17,6 +17,14 @@ const routes = [
     children: [
       { path: '', name: 'home', component: () => import('@/views/Home.vue') },
       { path: 'finance', name: 'finance', component: () => import('@/views/finance/FinanceHome.vue') },
+      // 专家助力模块
+      { path: 'expert', name: 'expert', component: () => import('@/views/expert/ExpertHome.vue') },
+      { path: 'expert/knowledge', name: 'knowledge', component: () => import('@/views/expert/KnowledgeList.vue') },
+      { path: 'expert/knowledge/:id', name: 'knowledgeDetail', component: () => import('@/views/expert/KnowledgeDetail.vue') },
+      { path: 'expert/questions', name: 'questions', component: () => import('@/views/expert/QuestionList.vue') },
+      { path: 'expert/team', name: 'expertTeam', component: () => import('@/views/expert/ExpertList.vue') },
+      { path: 'expert/chat/:userId', name: 'chat', component: () => import('@/views/expert/Chat.vue') },
+      { path: 'expert/appointments', name: 'appointments', component: () => import('@/views/expert/Appointments.vue') },
       // 后续模块的路由在这里逐个添加
     ],
   },

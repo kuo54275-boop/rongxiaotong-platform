@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getHomeApi } from '@/api'
 
@@ -7,6 +8,7 @@ import { getHomeApi } from '@/api'
  * 首页：平台门户，包含六大板块
  * 1. 新闻轮播 2. 金融产品展示 3. 专家一览 4. 专家问答展示 5. 农业知识展示 6. 助农电商入口
  */
+const router = useRouter()
 const home = ref({})
 const loading = ref(true)
 
@@ -21,8 +23,9 @@ onMounted(async () => {
   }
 })
 
-function todo(msg) {
-  ElMessage.info(msg + '模块开发中，敬请期待！')
+/** 农产品交易模块还没上线，其余模块直接跳转 */
+function todo() {
+  ElMessage.info('农产品交易模块开发中，敬请期待！')
 }
 </script>
 
@@ -44,11 +47,11 @@ function todo(msg) {
     <section class="section">
       <div class="section-head">
         <h3>🏦 金融产品</h3>
-        <span class="more" @click="todo('融资服务')">进入融资服务 &gt;</span>
+        <span class="more" @click="router.push('/finance')">进入融资服务 &gt;</span>
       </div>
       <el-row :gutter="16">
         <el-col :span="8" v-for="p in home.loanProducts" :key="p.id">
-          <el-card shadow="hover" class="loan-card">
+          <el-card shadow="hover" class="loan-card" @click="router.push('/finance')">
             <div class="loan-name">{{ p.name }}</div>
             <div class="loan-rate">年利率 <b>{{ p.rate }}%</b></div>
             <div class="loan-info">
@@ -65,11 +68,11 @@ function todo(msg) {
     <section class="section">
       <div class="section-head">
         <h3>👨‍🌾 专家一览</h3>
-        <span class="more" @click="todo('专家助力')">进入专家助力 &gt;</span>
+        <span class="more" @click="router.push('/expert/team')">进入专家助力 &gt;</span>
       </div>
       <el-row :gutter="16">
         <el-col :span="6" v-for="e in home.experts" :key="e.id">
-          <el-card shadow="hover" class="expert-card">
+          <el-card shadow="hover" class="expert-card" @click="router.push('/expert/team')">
             <img :src="e.avatar" class="expert-avatar" alt="专家头像" />
             <div class="expert-name">{{ e.realName }}</div>
             <div class="expert-title">{{ e.title }}</div>
@@ -88,11 +91,11 @@ function todo(msg) {
     <section class="section">
       <div class="section-head">
         <h3>💬 专家问答</h3>
-        <span class="more" @click="todo('专家助力')">去提问 &gt;</span>
+        <span class="more" @click="router.push('/expert/questions')">去提问 &gt;</span>
       </div>
       <el-row :gutter="16">
         <el-col :span="12" v-for="q in home.questions" :key="q.id">
-          <el-card shadow="hover" class="qa-card">
+          <el-card shadow="hover" class="qa-card" @click="router.push('/expert/questions')">
             <div class="qa-q">
               <span class="qa-tag">问</span>
               <span class="qa-title">{{ q.title }}</span>
@@ -113,11 +116,12 @@ function todo(msg) {
     <section class="section">
       <div class="section-head">
         <h3>📚 农业知识</h3>
-        <span class="more" @click="todo('专家助力')">更多知识 &gt;</span>
+        <span class="more" @click="router.push('/expert/knowledge')">更多知识 &gt;</span>
       </div>
       <el-row :gutter="16">
         <el-col :span="6" v-for="a in home.articles" :key="a.id">
-          <el-card shadow="hover" class="article-card" :body-style="{ padding: '0' }">
+          <el-card shadow="hover" class="article-card" :body-style="{ padding: '0' }"
+                   @click="router.push(`/expert/knowledge/${a.id}`)">
             <img :src="a.cover" class="article-cover" alt="封面" />
             <div class="article-body">
               <el-tag size="small" type="success">{{ a.category }}</el-tag>

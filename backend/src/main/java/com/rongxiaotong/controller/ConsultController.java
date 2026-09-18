@@ -1,6 +1,7 @@
 package com.rongxiaotong.controller;
 
 import com.rongxiaotong.common.Result;
+import com.rongxiaotong.dto.ConsultStatsVO;
 import com.rongxiaotong.dto.ContactVO;
 import com.rongxiaotong.entity.ConsultMessage;
 import com.rongxiaotong.service.ConsultService;
@@ -35,5 +36,11 @@ public class ConsultController {
     @GetMapping("/contacts")
     public Result<List<ContactVO>> contacts() {
         return Result.ok(consultService.contacts());
+    }
+
+    /** 通知统计（顶部铃铛红点数据，前端每 10 秒轮询） */
+    @GetMapping("/stats")
+    public Result<ConsultStatsVO> stats() {
+        return Result.ok(consultService.stats());
     }
 }

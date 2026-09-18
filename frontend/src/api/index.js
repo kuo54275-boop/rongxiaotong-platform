@@ -54,6 +54,7 @@ export const sendMessageApi = (receiverId, content) =>
 export const getMessagesApi = (withUserId) =>
   request.get('/consult/list', { params: { with: withUserId } })
 export const getContactsApi = () => request.get('/consult/contacts')
+export const getConsultStatsApi = () => request.get('/consult/stats')
 
 // 用户公开信息
 export const getBasicUserApi = (id) => request.get(`/public/user/${id}/basic`)

@@ -5,6 +5,7 @@ import { ElMessage } from 'element-plus'
 import {
   answerQuestionApi,
   askQuestionApi,
+  getConsultStatsApi,
   getExpertsApi,
   getMyQuestionsApi,
   getQuestionApi,
@@ -20,6 +21,7 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const tab = ref('all')          // all 全部 / todo 待回答(专家) / mine 我的提问(农户)
+const todoCount = ref(0)        // 待回答问题数（红点）
 const questions = ref([])
 const total = ref(0)
 const page = ref(1)
@@ -64,6 +66,13 @@ async function loadList() {
       const res = await getTodoQuestionsApi()
       questions.value = res.data || []
       total.value = questions.value.length
+      // 刷新红点数字
+      try {
+        const s = await getConsultStatsApi()
+        todoCount.value = s.data?.todoQuestions || 0
+      } catch (e) {
+        // 忽略统计失败
+      }
       return
     }
     const res = await getQuestionsApi({ page: page.value, size })
@@ -164,7 +173,9 @@ async function submitAnswer() {
     <div class="top-bar">
       <el-radio-group v-model="tab" @change="changeTab">
         <el-radio-button value="all">全部问答</el-radio-button>
-        <el-radio-button v-if="userStore.role === 'EXPERT'" value="todo">待回答</el-radio-button>
+        <el-badge v-if="userStore.role === 'EXPERT'" :value="todoCount" :hidden="todoCount === 0" :offset="[6, -4]">
+          <el-radio-button value="todo">待回答</el-radio-button>
+        </el-badge>
         <el-radio-button v-if="userStore.role === 'FARMER'" value="mine">我的提问</el-radio-button>
       </el-radio-group>
       <el-button v-if="userStore.role === 'FARMER'" type="primary" @click="openAsk">

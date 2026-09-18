@@ -4,10 +4,15 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.rongxiaotong.common.BizException;
+import com.rongxiaotong.common.Roles;
 import com.rongxiaotong.dto.ContactVO;
+import com.rongxiaotong.entity.Appointment;
 import com.rongxiaotong.entity.ConsultMessage;
+import com.rongxiaotong.entity.Question;
 import com.rongxiaotong.entity.User;
+import com.rongxiaotong.mapper.AppointmentMapper;
 import com.rongxiaotong.mapper.ConsultMessageMapper;
+import com.rongxiaotong.mapper.QuestionMapper;
 import com.rongxiaotong.mapper.UserMapper;
 import com.rongxiaotong.util.UserContext;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +30,8 @@ public class ConsultService {
 
     private final ConsultMessageMapper consultMessageMapper;
     private final UserMapper userMapper;
+    private final AppointmentMapper appointmentMapper;
+    private final QuestionMapper questionMapper;
 
     /** 发送一条消息 */
     public Long send(Long receiverId, String content) {
@@ -64,6 +71,29 @@ public class ConsultService {
             }
         }
         return list;
+    }
+
+    /**
+     * 通知统计（顶部铃铛红点用）：未读消息数 + 专家的待处理预约数和待回答问题数
+     */
+    public com.rongxiaotong.dto.ConsultStatsVO stats() {
+        Long me = UserContext.getUserId();
+        com.rongxiaotong.dto.ConsultStatsVO vo = new com.rongxiaotong.dto.ConsultStatsVO();
+        // 未读消息
+        vo.setUnreadMessages(consultMessageMapper.selectCount(
+                new LambdaQueryWrapper<ConsultMessage>()
+                        .eq(ConsultMessage::getReceiverId, me)
+                        .eq(ConsultMessage::getIsRead, 0)));
+        // 专家：待处理预约 + 待回答问题
+        if (Roles.EXPERT.equals(UserContext.getRole())) {
+            vo.setPendingAppointments(appointmentMapper.selectCount(
+                    new LambdaQueryWrapper<Appointment>()
+                            .eq(Appointment::getExpertId, me)
+                            .eq(Appointment::getStatus, "PENDING")));
+            vo.setTodoQuestions(questionMapper.selectCount(
+                    new LambdaQueryWrapper<Question>().eq(Question::getStatus, 0)));
+        }
+        return vo;
     }
 
     /**

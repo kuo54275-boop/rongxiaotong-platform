@@ -1,11 +1,13 @@
 <script setup>
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getContactsApi, getConsultStatsApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 
 /**
- * 前台整体布局：顶部导航 + 页面主体 + 页脚
- * 除登录页外，所有前台页面都套用这个布局
+ * 前台整体布局：顶部导航（含消息铃铛）+ 页面主体 + 页脚
+ * 登录后铃铛每 10 秒轮询一次：未读消息 / 待处理预约 / 待回答问题，有红点提醒
  */
 const router = useRouter()
 const route = useRoute()
@@ -19,6 +21,42 @@ const menus = [
   { label: '个人中心', path: '/user' },
 ]
 
+// 通知数据
+const stats = ref({ unreadMessages: 0, pendingAppointments: 0, todoQuestions: 0 })
+const contacts = ref([])
+const unreadContacts = computed(() => contacts.value.filter((c) => c.unread > 0))
+const bellBadge = computed(
+  () =>
+    stats.value.unreadMessages +
+    stats.value.pendingAppointments +
+    stats.value.todoQuestions,
+)
+let timer = null
+
+onMounted(() => {
+  tick()
+  timer = setInterval(tick, 10000)   // 每 10 秒轮询一次通知
+})
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+  }
+})
+
+async function tick() {
+  if (!userStore.isLogin) {
+    return
+  }
+  try {
+    const [s, c] = await Promise.all([getConsultStatsApi(), getContactsApi()])
+    stats.value = s.data || stats.value
+    contacts.value = c.data || []
+  } catch (e) {
+    // 登录过期时拦截器会处理跳转
+  }
+}
+
 function onMenu(path) {
   // 已完成的模块直接跳转，未完成的先提示
   if (path === '/' || path === '/finance' || path === '/expert') {
@@ -28,6 +66,18 @@ function onMenu(path) {
   ElMessage.info('该模块正在开发中，敬请期待！')
 }
 
+/** 铃铛里的通知项点击 */
+function onNotify(item) {
+  if (item === 'appointments') {
+    router.push('/expert/appointments')
+  } else if (item === 'questions') {
+    router.push('/expert/questions')
+  } else if (typeof item === 'number' || typeof item === 'string') {
+    router.push(`/expert/chat/${item}`)
+  }
+}
+
+/** 用户头像下拉菜单 */
 function onUserCommand(cmd) {
   if (cmd === 'logout') {
     userStore.logout()
@@ -35,6 +85,12 @@ function onUserCommand(cmd) {
     router.push('/')
   } else if (cmd === 'info') {
     ElMessage.info('个人中心开发中，敬请期待！')
+  } else if (cmd === 'appointments') {
+    router.push('/expert/appointments')
+  } else if (cmd === 'knowledge') {
+    router.push('/expert/knowledge')
+  } else if (cmd === 'finance') {
+    router.push('/finance')
   }
 }
 </script>
@@ -63,6 +119,60 @@ function onUserCommand(cmd) {
 
         <div class="user-area">
           <template v-if="userStore.isLogin">
+            <!-- 消息铃铛：未读消息 / 待处理预约 / 待回答问题 -->
+            <el-popover placement="bottom-end" :width="320" trigger="click">
+              <template #reference>
+                <span class="bell">
+                  <el-badge :value="bellBadge" :hidden="bellBadge === 0" :max="99">
+                    <span class="bell-icon">🔔</span>
+                  </el-badge>
+                </span>
+              </template>
+              <div class="notify-panel">
+                <div class="notify-title">通知中心</div>
+
+                <!-- 未读消息 -->
+                <template v-if="unreadContacts.length">
+                  <div class="notify-group">💬 未读消息</div>
+                  <div
+                    v-for="c in unreadContacts"
+                    :key="c.userId"
+                    class="notify-item"
+                    @click="onNotify(c.userId)"
+                  >
+                    <img :src="c.avatar" class="notify-avatar" alt="头像" />
+                    <div class="notify-text">
+                      <div class="notify-name">{{ c.realName }}</div>
+                      <div class="notify-msg">{{ c.lastMessage }}</div>
+                    </div>
+                    <el-badge :value="c.unread" />
+                  </div>
+                </template>
+
+                <!-- 专家：待处理预约 -->
+                <template v-if="userStore.role === 'EXPERT' && stats.pendingAppointments > 0">
+                  <div class="notify-group">📅 预约处理</div>
+                  <div class="notify-item" @click="onNotify('appointments')">
+                    <span class="notify-dot">●</span>
+                    有 {{ stats.pendingAppointments }} 条预约待处理
+                  </div>
+                </template>
+
+                <!-- 专家：待回答问题 -->
+                <template v-if="userStore.role === 'EXPERT' && stats.todoQuestions > 0">
+                  <div class="notify-group">❓ 问题回答</div>
+                  <div class="notify-item" @click="onNotify('questions')">
+                    <span class="notify-dot">●</span>
+                    有 {{ stats.todoQuestions }} 个问题待回答
+                  </div>
+                </template>
+
+                <!-- 全部已读 -->
+                <div v-if="bellBadge === 0" class="notify-empty">暂无新通知</div>
+              </div>
+            </el-popover>
+
+            <!-- 用户下拉 -->
             <el-dropdown @command="onUserCommand">
               <span class="user-info">
                 <img :src="userStore.avatar" class="avatar" alt="头像" />
@@ -71,6 +181,14 @@ function onUserCommand(cmd) {
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item command="info">个人中心</el-dropdown-item>
+                  <template v-if="userStore.role === 'EXPERT'">
+                    <el-dropdown-item command="appointments">📅 预约管理</el-dropdown-item>
+                    <el-dropdown-item command="knowledge">📚 知识管理</el-dropdown-item>
+                  </template>
+                  <template v-if="userStore.role === 'FARMER'">
+                    <el-dropdown-item command="appointments">📅 我的预约</el-dropdown-item>
+                    <el-dropdown-item command="finance">🏦 我的融资</el-dropdown-item>
+                  </template>
                   <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -162,6 +280,7 @@ function onUserCommand(cmd) {
 .user-area {
   display: flex;
   align-items: center;
+  gap: 18px;
 }
 .user-info {
   display: flex;
@@ -175,6 +294,76 @@ function onUserCommand(cmd) {
   width: 32px;
   height: 32px;
   border-radius: 50%;
+}
+
+/* 铃铛 */
+.bell {
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+}
+.bell-icon {
+  font-size: 20px;
+}
+.notify-panel {
+  max-height: 400px;
+  overflow-y: auto;
+}
+.notify-title {
+  padding: 10px 16px;
+  font-weight: 700;
+  font-size: 14px;
+  border-bottom: 1px solid #f0f2f5;
+}
+.notify-group {
+  padding: 8px 16px 4px;
+  font-size: 12px;
+  color: #909399;
+}
+.notify-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #303133;
+}
+.notify-item:hover {
+  background: #f5f7fa;
+}
+.notify-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.notify-text {
+  flex: 1;
+  min-width: 0;
+}
+.notify-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+.notify-msg {
+  font-size: 12px;
+  color: #909399;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+.notify-dot {
+  color: #f56c6c;
+  margin-right: 6px;
+}
+.notify-empty {
+  text-align: center;
+  color: #c0c4cc;
+  font-size: 13px;
+  padding: 20px 0;
 }
 
 /* 主体 */

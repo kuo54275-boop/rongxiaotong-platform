@@ -34,6 +34,7 @@ public class OrderService {
     private final ProductMapper productMapper;
     private final AddressMapper addressMapper;
     private final UserMapper userMapper;
+    private final NotificationService notificationService;
 
     /**
      * 下单：把购物车中的商品按农户分组生成订单（一个农户一个订单）
@@ -104,6 +105,12 @@ public class OrderService {
                 productMapper.updateById(p);
             }
             orderIds.add(order.getId());
+            // 5. 通知农户：有新订单
+            User buyer = userMapper.selectById(UserContext.getUserId());
+            notificationService.send(farmerId, "ORDER_NEW", "🛒 新订单提醒",
+                    "买家" + (buyer == null ? "" : buyer.getRealName())
+                            + "提交了新订单 " + order.getOrderNo() + "，金额 ¥" + order.getTotalAmount() + "，请及时关注",
+                    order.getId());
         }
         // 5. 清空购物车
         cartMapper.delete(new LambdaQueryWrapper<Cart>().eq(Cart::getUserId, UserContext.getUserId()));
@@ -141,7 +148,7 @@ public class OrderService {
         orderMapper.updateById(order);
     }
 
-    /** 农户：发货（待发货 → 已完成） */
+    /** 农户：发货（待发货 → 已完成），并通知买家 */
     public void ship(Long id) {
         Order order = orderMapper.selectById(id);
         if (order == null || !order.getFarmerId().equals(UserContext.getUserId())) {
@@ -152,6 +159,8 @@ public class OrderService {
         }
         order.setStatus("COMPLETED");
         orderMapper.updateById(order);
+        notificationService.send(order.getBuyerId(), "ORDER_SHIPPED", "🚚 订单已发货",
+                "您的订单 " + order.getOrderNo() + " 已发货，请注意查收", order.getId());
     }
 
     /** 买家：取消订单（恢复库存） */

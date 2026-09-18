@@ -31,6 +31,7 @@ public class ExpertService {
     private final QuestionMapper questionMapper;
     private final AnswerMapper answerMapper;
     private final UserMapper userMapper;
+    private final NotificationService notificationService;
 
     // ==================== 农业知识 ====================
 
@@ -285,6 +286,9 @@ public class ExpertService {
         // 问题标记为已回答
         q.setStatus(1);
         questionMapper.updateById(q);
+        // 通知提问农户
+        notificationService.send(q.getFarmerId(), "QUESTION_ANSWERED", "💬 问题已有专家回答",
+                "您的问题「" + q.getTitle() + "」收到了新回答，快去看看吧", q.getId());
         return a.getId();
     }
 

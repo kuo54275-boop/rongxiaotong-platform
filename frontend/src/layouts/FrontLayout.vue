@@ -2,7 +2,13 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getContactsApi, getConsultStatsApi } from '@/api'
+import {
+  getContactsApi,
+  getConsultStatsApi,
+  getNotifyListApi,
+  markAllNotifyReadApi,
+  markNotifyReadApi,
+} from '@/api'
 import { useUserStore } from '@/stores/user'
 
 /**
@@ -22,14 +28,17 @@ const menus = [
 ]
 
 // 通知数据
-const stats = ref({ unreadMessages: 0, pendingAppointments: 0, todoQuestions: 0 })
+const stats = ref({ unreadMessages: 0, pendingAppointments: 0, todoQuestions: 0, unreadNotifications: 0 })
 const contacts = ref([])
+const notifications = ref([])
 const unreadContacts = computed(() => contacts.value.filter((c) => c.unread > 0))
+const unreadNotifications = computed(() => notifications.value.filter((n) => n.isRead === 0))
 const bellBadge = computed(
   () =>
     stats.value.unreadMessages +
     stats.value.pendingAppointments +
-    stats.value.todoQuestions,
+    stats.value.todoQuestions +
+    stats.value.unreadNotifications,
 )
 let timer = null
 
@@ -49,12 +58,41 @@ async function tick() {
     return
   }
   try {
-    const [s, c] = await Promise.all([getConsultStatsApi(), getContactsApi()])
+    const [s, c, n] = await Promise.all([
+      getConsultStatsApi(),
+      getContactsApi(),
+      getNotifyListApi(),
+    ])
     stats.value = s.data || stats.value
     contacts.value = c.data || []
+    notifications.value = n.data || []
   } catch (e) {
     // 登录过期时拦截器会处理跳转
   }
+}
+
+/** 点击系统通知：标记已读 + 跳转到对应页面 */
+async function onNotifyClick(n) {
+  if (n.isRead === 0) {
+    try {
+      await markNotifyReadApi(n.id)
+    } catch (e) {
+      // 忽略
+    }
+  }
+  const routeMap = {
+    ORDER_NEW: '/market/orders',
+    ORDER_SHIPPED: '/market/orders',
+    QUESTION_ANSWERED: '/expert/questions',
+    APPOINTMENT_HANDLED: '/expert/appointments',
+  }
+  router.push(routeMap[n.type] || '/')
+  tick()
+}
+
+async function readAllNotify() {
+  await markAllNotifyReadApi()
+  tick()
 }
 
 function onMenu(path) {
@@ -164,6 +202,27 @@ function onUserCommand(cmd) {
                   <div class="notify-item" @click="onNotify('questions')">
                     <span class="notify-dot">●</span>
                     有 {{ stats.todoQuestions }} 个问题待回答
+                  </div>
+                </template>
+
+                <!-- 系统通知：新订单 / 已发货 / 回答 / 预约状态 -->
+                <template v-if="unreadNotifications.length">
+                  <div class="notify-group">
+                    🔔 系统通知
+                    <span class="read-all" @click="readAllNotify">全部已读</span>
+                  </div>
+                  <div
+                    v-for="n in unreadNotifications"
+                    :key="n.id"
+                    class="notify-item"
+                    @click="onNotifyClick(n)"
+                  >
+                    <div class="notify-text">
+                      <div class="notify-name">{{ n.title }}</div>
+                      <div class="notify-msg">{{ n.content }}</div>
+                      <div class="notify-time">{{ n.createTime }}</div>
+                    </div>
+                    <span class="notify-dot">●</span>
                   </div>
                 </template>
 
@@ -358,6 +417,18 @@ function onUserCommand(cmd) {
 .notify-dot {
   color: #f56c6c;
   margin-right: 6px;
+  flex-shrink: 0;
+}
+.notify-time {
+  color: #c0c4cc;
+  font-size: 11px;
+  margin-top: 2px;
+}
+.read-all {
+  float: right;
+  color: #3d8c40;
+  cursor: pointer;
+  font-size: 12px;
 }
 .notify-empty {
   text-align: center;

@@ -206,6 +206,17 @@ CREATE TABLE IF NOT EXISTS order_item (
     quantity   INTEGER
 );
 
+CREATE TABLE IF NOT EXISTS notification (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id     INTEGER,              -- 接收通知的用户
+    type        TEXT,                 -- 通知类型：ORDER_NEW 新订单 / ORDER_SHIPPED 已发货 / QUESTION_ANSWERED 问题已回答 / APPOINTMENT_HANDLED 预约已处理
+    title       TEXT,
+    content     TEXT,
+    related_id  INTEGER,              -- 关联业务 id（订单/问题/预约）
+    is_read     INTEGER DEFAULT 0,    -- 0 未读 / 1 已读
+    create_time TEXT
+);
+
 -- ==================== 二、演示数据 ====================
 -- 所有演示账号密码均为 123456（存储的是 BCrypt 加密后的值）
 

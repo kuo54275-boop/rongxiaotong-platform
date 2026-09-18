@@ -32,6 +32,7 @@ public class ConsultService {
     private final UserMapper userMapper;
     private final AppointmentMapper appointmentMapper;
     private final QuestionMapper questionMapper;
+    private final NotificationService notificationService;
 
     /** 发送一条消息 */
     public Long send(Long receiverId, String content) {
@@ -84,6 +85,8 @@ public class ConsultService {
                 new LambdaQueryWrapper<ConsultMessage>()
                         .eq(ConsultMessage::getReceiverId, me)
                         .eq(ConsultMessage::getIsRead, 0)));
+        // 未读系统通知
+        vo.setUnreadNotifications(notificationService.unreadCount(me));
         // 专家：待处理预约 + 待回答问题
         if (Roles.EXPERT.equals(UserContext.getRole())) {
             vo.setPendingAppointments(appointmentMapper.selectCount(

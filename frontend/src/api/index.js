@@ -58,6 +58,11 @@ export const getMessagesApi = (withUserId) =>
 export const getContactsApi = () => request.get('/consult/contacts')
 export const getConsultStatsApi = () => request.get('/consult/stats')
 
+// ===== 系统通知 =====
+export const getNotifyListApi = () => request.get('/notify/list')
+export const markNotifyReadApi = (id) => request.put(`/notify/${id}/read`)
+export const markAllNotifyReadApi = () => request.put('/notify/read-all')
+
 // 用户公开信息
 export const getBasicUserApi = (id) => request.get(`/public/user/${id}/basic`)
 

@@ -11,4 +11,5 @@ public class ConsultStatsVO {
     private long unreadMessages;        // 未读咨询消息数
     private long pendingAppointments;   // 待处理预约数（专家才有）
     private long todoQuestions;         // 待回答问题数（专家才有）
+    private long unreadNotifications;   // 未读系统通知数（新订单/已发货/回答/预约等）
 }

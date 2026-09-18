@@ -30,6 +30,7 @@ public class AppointmentService {
     private final AppointmentMapper appointmentMapper;
     private final UserMapper userMapper;
     private final ExpertProfileMapper expertProfileMapper;
+    private final NotificationService notificationService;
 
     /** 农户：提交预约 */
     public Long create(Appointment appointment) {
@@ -108,6 +109,11 @@ public class AppointmentService {
         }
         a.setStatus(status);
         appointmentMapper.updateById(a);
+        // 通知农户预约状态变化
+        String statusText = "CONFIRMED".equals(status) ? "专家已确认您的预约「" + a.getTopic() + "」，请按时等待专家上门"
+                : "DONE".equals(status) ? "您的预约「" + a.getTopic() + "」已完成，感谢使用"
+                : "您的预约「" + a.getTopic() + "」已被专家取消";
+        notificationService.send(a.getFarmerId(), "APPOINTMENT_HANDLED", "📅 预约状态更新", statusText, a.getId());
         // 完成一次预约，专家服务次数 +1
         if ("DONE".equals(status)) {
             ExpertProfile ep = expertProfileMapper.selectOne(

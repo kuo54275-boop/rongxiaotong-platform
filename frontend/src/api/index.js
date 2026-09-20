@@ -64,7 +64,7 @@ export const markNotifyReadApi = (id) => request.put(`/notify/${id}/read`)
 export const markAllNotifyReadApi = () => request.put('/notify/read-all')
 
 // ===== 个人信息 =====
-export const updateProfileApi = (data) => request.put('/user/profile', data)
+export const updateUserProfileApi = (data) => request.put('/user/profile', data)
 export const changePasswordApi = (data) => request.put('/user/password', data)
 
 // ===== 文件上传 =====

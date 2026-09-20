@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getInfoApi, updateProfileApi, uploadImageApi } from '@/api'
+import { getInfoApi, updateUserProfileApi, uploadImageApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 
 /**
@@ -44,7 +44,7 @@ async function save() {
   }
   saving.value = true
   try {
-    await updateProfileApi(form)
+    await updateUserProfileApi(form)
     await userStore.fetchInfo()   // 刷新顶部导航的头像和名字
     ElMessage.success('保存成功')
   } catch (e) {

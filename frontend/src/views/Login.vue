@@ -1,6 +1,6 @@
 <script setup>
-import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
@@ -8,7 +8,11 @@ import { useUserStore } from '@/stores/user'
  * 登录 / 注册页
  */
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
+
+/** 登录成功后的去向：优先回到被拦下前想去的页面 */
+const redirectPath = computed(() => route.query.redirect || '/')
 
 const tab = ref('login')
 const loading = ref(false)
@@ -38,7 +42,7 @@ async function onLogin() {
   try {
     await userStore.login(loginForm)
     ElMessage.success('登录成功，欢迎回来！')
-    router.push('/')
+    router.push(redirectPath.value)
   } catch (e) {
     // 失败提示已由请求拦截器弹出
   } finally {
@@ -63,7 +67,7 @@ async function onRegister() {
   try {
     await userStore.register(registerForm)
     ElMessage.success('注册成功，已自动登录！')
-    router.push('/')
+    router.push(redirectPath.value)
   } catch (e) {
     // 失败提示已由请求拦截器弹出
   } finally {

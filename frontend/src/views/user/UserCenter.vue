@@ -23,7 +23,7 @@ const role = computed(() => userStore.role)
 /** 菜单项：path 为空表示跳到外部页面 */
 const menuItems = computed(() => {
   const common = [
-    { label: '👤 基础信息', path: '/user/profile' },
+    { label: '👤 基础信息', path: '/user' },
     { label: '🔒 修改密码', path: '/user/password' },
     { label: '📍 收货地址', path: '/user/address' },
     { label: '📝 我的发布', path: '/user/posts' },

@@ -37,8 +37,9 @@ const routes = [
         component: () => import('@/views/user/UserCenter.vue'),
         meta: { requiresAuth: true },
         children: [
-          { path: '', redirect: 'profile' },
-          { path: 'profile', name: 'profile', component: () => import('@/views/user/Profile.vue') },
+          // 注意：vue-router 5 中空路径子路由带 redirect 会导致父路径匹配失败，
+          // 所以"基础信息"直接挂在空路径上（访问 /user 即展示）
+          { path: '', name: 'profile', component: () => import('@/views/user/Profile.vue') },
           { path: 'password', name: 'password', component: () => import('@/views/user/Password.vue') },
           { path: 'address', name: 'address', component: () => import('@/views/user/AddressManage.vue') },
           { path: 'posts', name: 'posts', component: () => import('@/views/user/MyPosts.vue') },
@@ -61,10 +62,11 @@ const router = createRouter({
 })
 
 // 全局路由守卫：标记了 requiresAuth 的页面必须登录才能访问
+// 被拦下时记住目标地址，登录成功后自动跳回去
 router.beforeEach((to) => {
   const token = localStorage.getItem('token')
   if (to.meta.requiresAuth && !token) {
-    return '/login'
+    return { path: '/login', query: { redirect: to.fullPath } }
   }
 })
 

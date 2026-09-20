@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   deleteArticleApi,
@@ -14,6 +14,7 @@ import { useUserStore } from '@/stores/user'
  * 农业知识库：分类浏览 + 分页；专家登录后可管理（发布/编辑/删除）
  */
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 const categories = ['全部', '种植技术', '养殖技术', '病虫害防治', '政策法规']
@@ -37,7 +38,14 @@ const coverOptions = [
   { label: '养殖', value: '/api/images/article4.svg' },
 ]
 
-onMounted(loadList)
+onMounted(() => {
+  // 从个人中心"知识管理"进来时直接打开管理模式
+  if (route.query.tab === 'manage' && userStore.role === 'EXPERT') {
+    tab.value = 'manage'
+    loadMyArticles()
+  }
+  loadList()
+})
 
 async function loadList() {
   loading.value = true

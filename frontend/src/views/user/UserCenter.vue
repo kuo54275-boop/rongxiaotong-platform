@@ -33,16 +33,16 @@ const menuItems = computed(() => {
       { label: '🏦 我的融资', path: '/user/finance' },
       { label: '📦 我的订单', path: '/market/orders' },
       { label: '📅 我的预约', path: '/expert/appointments' },
-      { label: '🛒 商品管理', path: '/market' },
+      { label: '🛒 商品管理', path: '/market?tab=manage' },
     ],
     BUYER: [
       { label: '📦 我的订单', path: '/market/orders' },
-      { label: '📋 我的求购', path: '/market/demands' },
+      { label: '📋 我的求购', path: '/market/demands?tab=mine' },
     ],
     EXPERT: [
       { label: '🎓 专家信息管理', path: '/user/expert' },
       { label: '📅 预约管理', path: '/expert/appointments' },
-      { label: '📚 知识管理', path: '/expert/knowledge' },
+      { label: '📚 知识管理', path: '/expert/knowledge?tab=manage' },
     ],
     BANK: [
       { label: '🏦 融资管理后台', path: '/bank' },
@@ -79,7 +79,7 @@ function onMenu(path) {
           v-for="m in menuItems"
           :key="m.label"
           class="menu-item"
-          :class="{ active: route.path === m.path }"
+          :class="{ active: route.path === m.path.split('?')[0] }"
           @click="onMenu(m.path)"
         >
           {{ m.label }}

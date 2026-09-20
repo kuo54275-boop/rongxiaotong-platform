@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   deleteDemandApi,
@@ -15,6 +15,7 @@ import { useUserStore } from '@/stores/user'
  * 求购大厅：买家发布/管理采购需求；农户查看需求并联系买家
  */
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 const tab = ref('hall')            // hall 求购大厅 / mine 我的需求
@@ -42,7 +43,13 @@ const form = reactive({
 const contactVisible = ref(false)
 const contact = ref(null)
 
-onMounted(loadList)
+onMounted(() => {
+  // 从个人中心"我的求购"进来时直接打开我的需求标签
+  if (route.query.tab === 'mine' && userStore.role === 'BUYER') {
+    tab.value = 'mine'
+  }
+  loadList()
+})
 
 async function loadList() {
   loading.value = true

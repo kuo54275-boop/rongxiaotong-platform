@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   deleteProductApi,
@@ -16,6 +16,7 @@ import { useUserStore } from '@/stores/user'
  * 农产品交易主页：商品浏览（搜索/分类/分页）+ 农户商品管理 + 购物车/求购入口
  */
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
 const categories = ['全部', '水果', '蔬菜', '粮食', '禽畜', '水产', '其他']
@@ -56,6 +57,11 @@ const coverOptions = [
 const unitOptions = ['斤', '袋', '箱', '瓶', '枚', '件']
 
 onMounted(async () => {
+  // 从个人中心"商品管理"进来时直接打开管理模式
+  if (route.query.tab === 'manage' && userStore.role === 'FARMER') {
+    tab.value = 'manage'
+    loadMyProducts()
+  }
   await loadList()
   if (userStore.role === 'BUYER') {
     try {

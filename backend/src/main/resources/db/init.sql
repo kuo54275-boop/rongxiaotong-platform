@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS order_item (
 CREATE TABLE IF NOT EXISTS notification (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id     INTEGER,              -- 接收通知的用户
-    type        TEXT,                 -- 通知类型：ORDER_NEW 新订单 / ORDER_SHIPPED 已发货 / QUESTION_ANSWERED 问题已回答 / APPOINTMENT_HANDLED 预约已处理
+    type        TEXT,                 -- 通知类型：LOAN_APPROVED 贷款通过 / LOAN_REJECTED 贷款拒绝 / ORDER_PAID 待发货提醒 / ORDER_SHIPPED 已发货 / QUESTION_ANSWERED 问题已回答 / APPOINTMENT_HANDLED 预约已处理
     title       TEXT,
     content     TEXT,
     related_id  INTEGER,              -- 关联业务 id（订单/问题/预约）

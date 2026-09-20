@@ -31,6 +31,22 @@ const routes = [
       { path: 'market/cart', name: 'cart', component: () => import('@/views/market/Cart.vue') },
       { path: 'market/demands', name: 'demands', component: () => import('@/views/market/DemandList.vue') },
       { path: 'market/orders', name: 'orders', component: () => import('@/views/market/OrderList.vue') },
+      // 个人信息中心（需登录）
+      {
+        path: 'user',
+        component: () => import('@/views/user/UserCenter.vue'),
+        meta: { requiresAuth: true },
+        children: [
+          { path: '', redirect: 'profile' },
+          { path: 'profile', name: 'profile', component: () => import('@/views/user/Profile.vue') },
+          { path: 'password', name: 'password', component: () => import('@/views/user/Password.vue') },
+          { path: 'address', name: 'address', component: () => import('@/views/user/AddressManage.vue') },
+          { path: 'posts', name: 'posts', component: () => import('@/views/user/MyPosts.vue') },
+          { path: 'expert', name: 'expertInfo', component: () => import('@/views/user/ExpertInfo.vue') },
+          { path: 'finance', name: 'myFinance', component: () => import('@/views/user/MyFinance.vue') },
+          { path: 'admin', name: 'userManage', component: () => import('@/views/user/UserManage.vue') },
+        ],
+      },
       // 后续模块的路由在这里逐个添加
     ],
   },

@@ -102,6 +102,15 @@ function onMenu(path) {
     router.push(path)
     return
   }
+  if (path === '/user') {
+    if (!userStore.isLogin) {
+      ElMessage.warning('请先登录')
+      router.push('/login')
+      return
+    }
+    router.push('/user')
+    return
+  }
   ElMessage.info('该模块正在开发中，敬请期待！')
 }
 
@@ -123,7 +132,7 @@ function onUserCommand(cmd) {
     ElMessage.success('已退出登录')
     router.push('/')
   } else if (cmd === 'info') {
-    ElMessage.info('个人中心开发中，敬请期待！')
+    router.push('/user')
   } else if (cmd === 'appointments') {
     router.push('/expert/appointments')
   } else if (cmd === 'knowledge') {

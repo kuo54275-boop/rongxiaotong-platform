@@ -63,6 +63,25 @@ export const getNotifyListApi = () => request.get('/notify/list')
 export const markNotifyReadApi = (id) => request.put(`/notify/${id}/read`)
 export const markAllNotifyReadApi = () => request.put('/notify/read-all')
 
+// ===== 个人信息 =====
+export const updateProfileApi = (data) => request.put('/user/profile', data)
+export const changePasswordApi = (data) => request.put('/user/password', data)
+
+// ===== 文件上传 =====
+export const uploadImageApi = (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request.post('/upload/image', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+}
+
+// ===== 管理员 =====
+export const getAdminUsersApi = (params) => request.get('/admin/users', { params })
+export const toggleUserStatusApi = (id, status) =>
+  request.put(`/admin/user/${id}/status`, null, { params: { status } })
+export const getRoleCountsApi = () => request.get('/admin/role-counts')
+
 // 用户公开信息
 export const getBasicUserApi = (id) => request.get(`/public/user/${id}/basic`)
 

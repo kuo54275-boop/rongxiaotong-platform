@@ -1,10 +1,9 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getBankStatsApi } from '@/api'
 import { useUserStore } from '@/stores/user'
-import { ref } from 'vue'
 
 /**
  * 银行侧后台布局：左侧边栏 + 顶栏 + 内容区
@@ -15,6 +14,7 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const pendingCount = ref(0)
+let timer = null
 
 const menus = [
   { label: '📊 工作台', path: '/bank' },
@@ -29,13 +29,27 @@ onMounted(async () => {
     router.push('/')
     return
   }
+  await tick()
+  timer = setInterval(tick, 10000)   // 每 10 秒刷新待审批数（红点自动更新）
+})
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+  }
+})
+
+async function tick() {
+  if (userStore.role !== 'BANK') {
+    return
+  }
   try {
     const res = await getBankStatsApi()
     pendingCount.value = res.data?.pendingCount || 0
   } catch (e) {
     // 拦截器已提示
   }
-})
+}
 
 function go(path) {
   router.push(path)

@@ -1,19 +1,31 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getBankStatsApi } from '@/api'
 import { useUserStore } from '@/stores/user'
 
 /**
- * 银行工作台：统计数字 + 快捷入口
+ * 银行工作台：统计数字 + 快捷入口（每 10 秒自动刷新统计）
  */
 const router = useRouter()
 const userStore = useUserStore()
 
 const stats = ref({})
 const loading = ref(true)
+let timer = null
 
 onMounted(async () => {
+  await load()
+  timer = setInterval(load, 10000)
+})
+
+onUnmounted(() => {
+  if (timer) {
+    clearInterval(timer)
+  }
+})
+
+async function load() {
   try {
     const res = await getBankStatsApi()
     stats.value = res.data || {}
@@ -22,7 +34,7 @@ onMounted(async () => {
   } finally {
     loading.value = false
   }
-})
+}
 
 const cards = [
   { key: 'pendingCount', label: '待审批申请', icon: '⏳', color: '#e6a23c' },

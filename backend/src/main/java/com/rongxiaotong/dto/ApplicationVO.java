@@ -13,4 +13,6 @@ public class ApplicationVO extends LoanApplication {
 
     private String productName;    // 贷款产品名称
     private String partnerName;    // 联合贷款人姓名（无则为 null）
+    private String farmerName;     // 申请农户姓名
+    private String farmerPhone;    // 申请农户电话
 }

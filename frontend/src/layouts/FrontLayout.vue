@@ -86,6 +86,8 @@ async function onNotifyClick(n) {
     ORDER_SHIPPED: '/market/orders',
     QUESTION_ANSWERED: '/expert/questions',
     APPOINTMENT_HANDLED: '/expert/appointments',
+    LOAN_APPROVED: '/user/finance',
+    LOAN_REJECTED: '/user/finance',
   }
   router.push(routeMap[n.type] || '/')
   tick()

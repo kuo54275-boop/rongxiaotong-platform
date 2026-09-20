@@ -82,6 +82,17 @@ export const toggleUserStatusApi = (id, status) =>
   request.put(`/admin/user/${id}/status`, null, { params: { status } })
 export const getRoleCountsApi = () => request.get('/admin/role-counts')
 
+// ===== 银行侧融资管理 =====
+export const matchFarmersApi = (productId) =>
+  request.get('/bank/match/farmers', { params: { productId } })
+export const getMatchRecordsApi = () => request.get('/bank/match/records')
+export const markContactedApi = (recordId) => request.put(`/bank/match/${recordId}/contact`)
+export const getBankApplicationsApi = (status) =>
+  request.get('/bank/applications', { params: { status } })
+export const approveApplicationApi = (id) => request.put(`/bank/application/${id}/approve`)
+export const rejectApplicationApi = (id) => request.put(`/bank/application/${id}/reject`)
+export const getBankStatsApi = () => request.get('/bank/stats')
+
 // 用户公开信息
 export const getBasicUserApi = (id) => request.get(`/public/user/${id}/basic`)
 

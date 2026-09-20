@@ -51,6 +51,17 @@ const routes = [
       // 后续模块的路由在这里逐个添加
     ],
   },
+  // 银行侧融资管理后台（独立布局，需登录）
+  {
+    path: '/bank',
+    component: () => import('@/layouts/BankLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+      { path: '', name: 'bankDashboard', component: () => import('@/views/bank/Dashboard.vue') },
+      { path: 'match', name: 'bankMatch', component: () => import('@/views/bank/BankMatch.vue') },
+      { path: 'approve', name: 'bankApprove', component: () => import('@/views/bank/BankApprove.vue') },
+    ],
+  },
   // 访问不存在的页面 → 回到首页
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ]

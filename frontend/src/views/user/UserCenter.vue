@@ -55,11 +55,6 @@ const menuItems = computed(() => {
 })
 
 function onMenu(path) {
-  if (path === '/bank') {
-    // 银行后台在后续阶段上线
-    router.push('/')
-    return
-  }
   router.push(path)
 }
 </script>

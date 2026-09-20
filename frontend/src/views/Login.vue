@@ -14,6 +14,14 @@ const userStore = useUserStore()
 /** 登录成功后的去向：优先回到被拦下前想去的页面 */
 const redirectPath = computed(() => route.query.redirect || '/')
 
+/** 银行角色登录后直接进银行后台 */
+function afterLoginPath() {
+  if (userStore.role === 'BANK') {
+    return '/bank'
+  }
+  return redirectPath.value
+}
+
 const tab = ref('login')
 const loading = ref(false)
 
@@ -42,7 +50,7 @@ async function onLogin() {
   try {
     await userStore.login(loginForm)
     ElMessage.success('登录成功，欢迎回来！')
-    router.push(redirectPath.value)
+    router.push(afterLoginPath())
   } catch (e) {
     // 失败提示已由请求拦截器弹出
   } finally {
@@ -67,7 +75,7 @@ async function onRegister() {
   try {
     await userStore.register(registerForm)
     ElMessage.success('注册成功，已自动登录！')
-    router.push(redirectPath.value)
+    router.push(afterLoginPath())
   } catch (e) {
     // 失败提示已由请求拦截器弹出
   } finally {

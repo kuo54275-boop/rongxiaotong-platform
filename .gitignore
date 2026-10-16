@@ -4,6 +4,20 @@ _old_skeleton_backup/
 # ===== Java / Maven（后端）=====
 backend/target/
 *.class
+*.jar
+*.war
+*.nar
+*.ear
+*.log
+*.ctxt
+hs_err_pid*
+replay_pid*
+.mtj.tmp/
+
+# ===== 压缩包 =====
+*.zip
+*.tar.gz
+*.rar
 
 # ===== Node / Vite（前端）=====
 frontend/node_modules/
